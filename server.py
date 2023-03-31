@@ -7,7 +7,7 @@ import sys
 import base64
 from PIL import Image
 from io import BytesIO
-from multiprocessing import Pool
+from torch.multiprocessing import Pool, Process
 
 import torch
 import diffusers
@@ -174,6 +174,7 @@ def _generate(task, engine=None):
         engine = task
 
     engine = manager.get_engine( engine )
+    
 
     # Prepare output container:
     output_data = {}
@@ -195,7 +196,7 @@ def _generate(task, engine=None):
                 'num_inference_steps' : retrieve_param( 'num_inference_steps', flask.request.form, int,   100 ),
                 'guidance_scale' : retrieve_param( 'guidance_scale', flask.request.form, float, 7.5 ),
                 'eta' : retrieve_param( 'eta', flask.request.form, float, 0.0 ),
-                'generator' : generator
+                # 'generator' : generator
             }
             if (task == 'txt2img'):
                 args_dict[ 'width' ] = retrieve_param( 'width', flask.request.form, int,   512 )
@@ -218,7 +219,7 @@ def _generate(task, engine=None):
         if __name__ == '__main__':
             with Pool(processes=gpu_count) as pool:
                 for prompt_args in pool.imap_unordered(engine.process, prompt_list):
-                    total_results.append( pipeline_output )
+                    
 
         # Prepare response
         output_data[ 'status' ] = 'success'
